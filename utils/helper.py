@@ -1,16 +1,20 @@
 import warnings
-
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from finta import TA
+import matplotlib.pyplot as plt
 from plotly.figure_factory import create_table
+from finta import TA
+from sklearn.pipeline import Pipeline
+from sklearn.compose import make_column_transformer, make_column_selector
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 warnings.filterwarnings("ignore")
 
-def add_indicators(df_stock):
 
+def add_indicators(df_stock):
     # Here are all indicators we are using
     #indicators = ['SMA', 'SMM', 'SSMA', 'EMA', 'DEMA', 'TEMA', 'TRIMA', 'TRIX', 'VAMA', 'ER', 'KAMA', 'ZLEMA', 'WMA', 'HMA', 'EVWMA', 'VWAP', 'SMMA', 'MACD', 'PPO', 'VW_MACD', 'EV_MACD', 'MOM', 'ROC', 'RSI', 'IFT_RSI']
     indicators = [name for name in list(TA.__dict__.keys()) if str(name).isupper()]
@@ -36,17 +40,18 @@ def add_indicators(df_stock):
             df_stock = df_stock.merge(df, left_index=True, right_index=True)
     # Fix labels
     df_stock.columns = df_stock.columns.str.replace(' ', '_')
+    df_stock.index.name = 'date'
     return df_stock
 
 
 def get_news_scores(df):
-    scores = {'date':[], 'score':[], 'news_type':[]}
+    scores = {'date': [], 'score': [], 'news_type': []}
     for index in set(df.index):
         if isinstance(df.loc[index]['score'], pd.core.series.Series):
             scores['date'].append(index)
             n_type = df.loc[index]['news_type'].max()
             n_df = df.loc[index][['score', 'news_type']].query("news_type == @n_type")
-            scores['score'].append( np.mean(n_df['score']) )
+            scores['score'].append(np.mean(n_df['score']))
             scores['news_type'].append(n_type)
         else:
             scores['date'].append(index)
@@ -56,8 +61,9 @@ def get_news_scores(df):
     news = pd.DataFrame.from_dict(scores)
     news.set_index('date', inplace=True)
     news.sort_index(ascending=True, inplace=True)
-
+    news.index.name = 'date'
     return news
+
 
 def trim_df_columns(df_stocks_full):
     for column in df_stocks_full.columns.to_list():
@@ -144,3 +150,37 @@ def reg_model_metrics(reg_models, X_train, X_test, y_train, y_test):
          'MAE': MAE_result, 'Training_Score': training_score, 'Test_Score': testing_score})
     pd_metric.set_index('models', inplace=True)
     return create_table(pd_metric, index_title='Models', index=True)
+
+
+def get_complexity(X_train, X_test, y_train, y_test):
+    train_mses = []
+    test_mses = []
+    r_squared = []
+    complex_num = 21
+    for i in range(1, complex_num):
+        poly_ordinal_ohe = make_column_transformer(
+            (PolynomialFeatures(include_bias=False, degree=i), make_column_selector(dtype_include=np.number)))
+        pipe = Pipeline([('transformer', poly_ordinal_ohe), ('linreg', LinearRegression())])
+
+        #fit on train
+        pipe.fit(X_train, y_train)
+        R_squared = r2_score(y_test, pipe.predict(X_test))
+
+        #predict on train and test
+        p1 = pipe.predict(X_train)
+        p2 = pipe.predict(X_test)
+
+        #create MSEs for train and test sets
+        train_mses.append(round(mean_squared_error(y_train, p1), 2))
+        test_mses.append(round(mean_squared_error(y_test, p2), 2))
+        r_squared.append(round(R_squared, 2))
+    best_complexity = test_mses.index(min(test_mses)) + 1
+    best_mse = min(test_mses)
+    best_rsq2 = max(r_squared)
+
+    # Answer check
+    print(f'The best degree polynomial model is:  {best_complexity}')
+    print(f'The smallest mean squared error on the test data is : {best_mse: .2f}')
+    print(f'The best value of the R-sq of the model, as a good fit is: {best_rsq2: .2f}')
+
+    return best_complexity
