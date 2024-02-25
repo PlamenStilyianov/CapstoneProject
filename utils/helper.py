@@ -152,12 +152,12 @@ def reg_model_metrics(reg_models, X_train, X_test, y_train, y_test):
     return create_table(pd_metric, index_title='Models', index=True)
 
 
-def get_complexity(X_train, X_test, y_train, y_test):
+def get_complexity(X_train, X_test, y_train, y_test, complex_num):
     train_mses = []
     test_mses = []
     r_squared = []
-    complex_num = 21
-    for i in range(1, complex_num):
+
+    for i in range(1, complex_num+1):
         poly_ordinal_ohe = make_column_transformer(
             (PolynomialFeatures(include_bias=False, degree=i), make_column_selector(dtype_include=np.number)))
         pipe = Pipeline([('transformer', poly_ordinal_ohe), ('linreg', LinearRegression())])
@@ -171,16 +171,16 @@ def get_complexity(X_train, X_test, y_train, y_test):
         p2 = pipe.predict(X_test)
 
         #create MSEs for train and test sets
-        train_mses.append(round(mean_squared_error(y_train, p1), 2))
-        test_mses.append(round(mean_squared_error(y_test, p2), 2))
-        r_squared.append(round(R_squared, 2))
+        train_mses.append(round(mean_squared_error(y_train, p1), 4))
+        test_mses.append(round(mean_squared_error(y_test, p2), 4))
+        r_squared.append(round(R_squared, 4))
     best_complexity = test_mses.index(min(test_mses)) + 1
     best_mse = min(test_mses)
     best_rsq2 = max(r_squared)
 
     # Answer check
-    print(f'The best degree polynomial model is:  {best_complexity}')
-    print(f'The smallest mean squared error on the test data is : {best_mse: .2f}')
-    print(f'The best value of the R-sq of the model, as a good fit is: {best_rsq2: .2f}')
+    print(f'The best degree of the polynomial model is:  {best_complexity} out of {complex_num}')
+    print(f'The smallest mean squared error on the test dataset is : {best_mse: .4f} out of {test_mses}')
+    print(f'The best value of the R-sq of the model, as a good fit is: {best_rsq2: .4f} out of {r_squared}')
 
     return best_complexity
