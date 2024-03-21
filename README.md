@@ -18,13 +18,21 @@ has the lowest Root Mean Square Error (RMSE) 11.18, It shows how far predictions
 Adj_R2 and R-squared between 0.85 to 0.86 is acceptable in social science research especially when most of the explanatory variables are statistically significant.
 <img src="images/reg_table.png">
 
-**Results and conclusion:** The RandomForestRegressor model is the best performer for prediction models.
+**Results and conclusion:** The RandomForestRegressor model is the best performer for the prediction models.
+If features are correlated, the permutation feature importance can be biased by unrealistic data instances. 
+For that reason the highly correlated feature have been dropped. Permutation importance does not reflect to 
+the intrinsic predictive value of a feature by itself but how important this feature is for a particular model.
+Looking at news permutation importance feature to Close price, it does not show good Explainability metrics to the RandomForestRegressor.
+
+<img src="images/permutation.png">
+
 The next development is the Long Short-Term Memory Networks model.for prediction and forcasting of time-series,
 The Long Short-Term Memory Networks is a deep learning, sequential neural network that allows information to persist. 
 It is a special type of Recurrent Neural Network which is capable of handling the vanishing gradient problem faced by RNN. 
 LSTM was designed by Hochreiter and Schmidhuber that resolves the problem caused by traditional RNNs and machine learning algorithms. 
 LSTM Model can be implemented in Python using the Keras library.
 The LSTM model is then trained to predict the target variable (e.g., the future stock price) based on the historical information.
+
 I have defined the LSTM with 32 neurons in the first hidden layer, 16 neurons in the second hidden layer and 1 neuron in the output layer for predicting pollution. The input shape will be 1 time step with 2 features.
 I have used the Mean Squared Error (MSE) loss function and the efficient Adam version of stochastic gradient descent.
 After the model is fit, we can forecast for the entire test dataset.
