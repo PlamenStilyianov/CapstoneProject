@@ -26,7 +26,7 @@ Looking at news permutation importance feature to Close price, it does not show 
 
 <img src="images/permutation.png">
 
-The next development is the Long Short-Term Memory Networks model.for prediction and forcasting of time-series,
+The next development is the Long Short-Term Memory Networks model for prediction and forcasting of time-series,
 The Long Short-Term Memory Networks is a deep learning, sequential neural network that allows information to persist. 
 It is a special type of Recurrent Neural Network which is capable of handling the vanishing gradient problem faced by RNN. 
 LSTM was designed by Hochreiter and Schmidhuber that resolves the problem caused by traditional RNNs and machine learning algorithms. 
