@@ -13,14 +13,31 @@ to build a future stock trend prediction model that combines technical analysis 
 
 A six-step methodology has been used as: data collection, data preprocessing, feature generation, sentiment analysis, feature correlation analysis, and applying machine learning algorithms.
 
-**Findings:** The best model for predicting the stock trend RandomForestRegressor model, which 
-has the lowest Root Mean Square Error (RMSE) 19.56, It shows how far predictions fall from measured true values using Euclidean distance.
-A R-squared between 0.50 to 0.99 is acceptable in social science research especially when most of the explanatory variables are statistically significant.
+**Findings:** The best model for predicting the stock trend RandomForestRegressor model with 97.64% training score and 85.57% test score, which 
+has the lowest Root Mean Square Error (RMSE) 11.18, It shows how far predictions fall from measured true values using Euclidean distance.
+Adj_R2 and R-squared between 0.85 to 0.86 is acceptable in social science research especially when most of the explanatory variables are statistically significant.
 <img src="images/reg_table.png">
 
-**Results and conclusion:** At the moment of developing the RandomForestRegressor model is the best performer, but next development is the Long Short-Term Memory Networks model.
-The Long Short-Term Memory Networks is a deep learning, sequential neural network that allows information to persist. It is a special type of Recurrent Neural Network which is capable of handling the vanishing gradient problem faced by RNN. LSTM was designed by Hochreiter and Schmidhuber that resolves the problem caused by traditional rnns and machine learning algorithms. LSTM Model can be implemented in Python using the Keras library.
+**Results and conclusion:** The RandomForestRegressor model is the best performer for prediction models.
+The next development is the Long Short-Term Memory Networks model.for prediction and forcasting of time-series,
+The Long Short-Term Memory Networks is a deep learning, sequential neural network that allows information to persist. 
+It is a special type of Recurrent Neural Network which is capable of handling the vanishing gradient problem faced by RNN. 
+LSTM was designed by Hochreiter and Schmidhuber that resolves the problem caused by traditional RNNs and machine learning algorithms. 
+LSTM Model can be implemented in Python using the Keras library.
 The LSTM model is then trained to predict the target variable (e.g., the future stock price) based on the historical information.
+I have defined the LSTM with 32 neurons in the first hidden layer, 16 neurons in the second hidden layer and 1 neuron in the output layer for predicting pollution. The input shape will be 1 time step with 2 features.
+I have used the Mean Squared Error (MSE) loss function and the efficient Adam version of stochastic gradient descent.
+After the model is fit, we can forecast for the entire test dataset.
+I have combined the forecast with the test dataset and invert the scaling. I have also inverted scaling on the test dataset with the expected pollution numbers.
+With forecasts and actual values in their original scale, we can then calculate an error score for the model. In this case, we calculate the Root Mean Squared Error (RMSE) that gives error in the same units as the variable itself.
+
+<img src="images/lstm_score.png">
+
+Since difference among VWAP average price, HLC average and closing value is not significant, so only VWAP average is used to build the model and prediction. 
+The training and testing RMSE are: 1.92 and 2.27 respectively which is pretty good to predict future values of stock. 
+Stock price of last day of dataset was 188.55 and using this model and price of next two days are predicted as 185.17 and 184.35,
+which were 189.53 and 187.87 on 6th and 7th March 2024 according to Yahoo Finance. 
+However, future values for any time-period can be predicted using this model.
 
 **Data Collection**
 The data consists of two parts, the financial data, and the financial news data. The former is the standard Alpaca historical data of the mentioned companies from 2016 to 2024.
