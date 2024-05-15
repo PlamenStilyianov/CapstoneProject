@@ -8,10 +8,10 @@
 
 Among all the different features considered useful in stock prediction as outlined by Tatsat et al, (2020), technical indicators 
 and news are the most popular and representative: technical indicators may identify patterns behind the stock price times series, 
-while financial news can indicate upcoming events that influence investors’ decisions. The use of the machine learning classification and regression frameworks 
-to build a future stock trend prediction model that combines technical analysis and fundamental analysis (financial news) and reported an excellent backtest performance.
+while financial news can indicate upcoming events that influence investors’ decisions. The use of the machine learning classification and regression frameworks, could be applied 
+to build a future stock trend prediction model that combines technical analysis and fundamental analysis (financial news), also could be extended as a reporting tool of backtest performance.
 
-A six-step methodology has been used as: data collection, data preprocessing, feature generation, sentiment analysis, feature correlation analysis, and applying machine learning algorithms.
+A six-step CRISP-DM methodology has been used as: data collection, data preprocessing, feature generation, sentiment analysis, feature correlation analysis, and applying machine learning algorithms.
 
 **Findings:** The best model for predicting the stock trend RandomForestRegressor model with 97.64% training score and 85.57% test score, which 
 has the lowest Root Mean Square Error (RMSE) 11.18, It shows how far predictions fall from measured true values using Euclidean distance.
@@ -26,17 +26,62 @@ Looking at news permutation importance feature to Close price, it does not show 
 
 <img src="images/permutation.png">
 
-The next development is the Long Short-Term Memory Networks model for prediction and forcasting of time-series,
+The Long Short-Term Memory Networks model has been used for regression prediction and time-series forcasting.
 The Long Short-Term Memory Networks is a deep learning, sequential neural network that allows information to persist. 
-It is a special type of Recurrent Neural Network which is capable of handling the vanishing gradient problem faced by RNN. 
+It is a special type of Recurrent Neural Network (RNNs) which is capable of handling the vanishing gradient problem faced by RNN. 
 LSTM was designed by Hochreiter and Schmidhuber that resolves the problem caused by traditional RNNs and machine learning algorithms. 
 LSTM Model can be implemented in Python using the Keras library.
 The LSTM model is then trained to predict the target variable (e.g., the future stock price) based on the historical information.
 
-I have defined the LSTM with 32 neurons in the first hidden layer, 16 neurons in the second hidden layer and 1 neuron in the output layer for predicting pollution. The input shape will be 1 time step with 2 features.
-I have used the Mean Squared Error (MSE) loss function and the efficient Adam version of stochastic gradient descent.
+We will explore how RNNs can be applied to univariate and multivariate time series to predict asset prices using market or fundamental data.
+More specifically, we'll first demonstrate how to prepare time-series data to predict the next value for univariate time series with a single LSTM layer to predict stock index values, Next, we will demonstrate how to model multivariate time series using an RNN.
+
+*Univariate Time Series Forecasting with LSTMs in Keras*
+
+We obtain historical data for 2016-2024 from Yahoo for ^GSPC symbol of SP500 index
+<img src="images/sp500_data.png">
+
+Having created input/output pairs out of our time series and cut this into training/testing sets, we can now begin setting up our RNN.  We use Keras to quickly build a two hidden layer RNN of the following specifications
+
+- layer 1 uses an LSTM module with 20 hidden units (note here the input_shape = (window_size,1))
+- layer 2 uses a fully connected module with one unit
+- the 'mean_squared_error' loss should be used (remember: we are performing regression here)
+
+<img src="images/rnn_sp500_evaluation.png">
+
+Cross-validation performance shows the 6-epoch rolling average of the training and validation RMSE, highlights the
+best epoch, and shows that the loss is 1.0398 percent:
+
+<img src="images/rnn_sp500_regression_black.png">
+The above four plots illustrate the forecast performance based on
+the rescaled predictions that track the 2019 out-of-sample S&P 500 data
+with a test information coefficient (IC) of 1.0398:
+
+*Multivariate Time Series Forecasting with LSTMs in Keras*
+
+Multivariate time-series models are designed to capture the dynamic of
+multiple time series simultaneously and leverage dependencies across these
+series for more reliable predictions.
+At this case, we are going to use the VWAP and CLOSE data features as time-series of JPM stock for the past 7 years.
+
+We apply the following transformation, annual difference for both series, prior log-transform to achieve stationarity on Time Series Models:
+Then we scale the transformed data to the [0,1] interval:
+<img src="images/multi_ts_transform.png">
+
+We can reshape directly to get non-overlapping series, i.e., one sample for each year (works only if the number of samples is divisible by window size).
+However, we want rolling, not non-overlapping lagged values. The create_multivariate_rnn_data function transforms a dataset of several time series into the shape required by the Keras RNN layers, namely `n_samples` x `window_size` x `n_series`.
+We will use window_size of 24 months and obtain the desired inputs for our RNN model. Finally, we split our data into a train and a test set, using the last 24 months to test the out-of-sample performance.
+
+<img src="images/multi_rnn_results.png">
+The above plot highlights training and validation errors, and the out-of-sample
+predictions for both series.
+
+*Forcasting Next day Price for the Stock*
+
+We have defined the LSTM with 32 neurons in the first hidden layer, 16 neurons in the second hidden layer and 1 neuron in the output layer for predicting pollution. The input shape will be 1 time step with 2 features.
+We have used the Mean Squared Error (MSE) loss function and the efficient Adam version of stochastic gradient descent.
 After the model is fit, we can forecast for the entire test dataset.
-I have combined the forecast with the test dataset and invert the scaling. I have also inverted scaling on the test dataset with the expected pollution numbers.
+We have combined the forecast with the test dataset and invert the scaling. We have also inverted scaling on the test dataset with the expected pollution numbers.
 With forecasts and actual values in their original scale, we can then calculate an error score for the model. In this case, we calculate the Root Mean Squared Error (RMSE) that gives error in the same units as the variable itself.
 
 <img src="images/lstm_score.png">
