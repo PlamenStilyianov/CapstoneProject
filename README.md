@@ -76,6 +76,7 @@ We will use window_size of 24 months and obtain the desired inputs for our RNN m
 The above plot highlights training and validation errors, and the out-of-sample
 predictions for both series.
 
+
 *Forcasting Next day Price for the Stock*
 
 We have defined the LSTM with 32 neurons in the first hidden layer, 16 neurons in the second hidden layer and 1 neuron in the output layer for predicting pollution. The input shape will be 1 time step with 2 features.
