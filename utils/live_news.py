@@ -8,7 +8,7 @@ from decouple import config
 warnings.filterwarnings("ignore")
 api_key = config("ALPACA_KEY")
 secret_key = config("ALPACA_SECRET")
-live_news_url = config("ALPACA_NEWS_WSS_URL")
+live_news_url = config("ALPACA_HTTPS_URL")
 
 wss_client = Stream(key_id=api_key, secret_key=secret_key, data_stream_url=URL(live_news_url))
 
@@ -34,6 +34,6 @@ async def news_data_handler(news):
         print(f'Negative news: {sentiment}')
         print(f"{headline}\n {summary}")
 
-wss_client.subscribe_news(news_data_handler, '*')
+wss_client.subscribe_news(news_data_handler, 'JPM')
 
 wss_client.run()
